@@ -48,6 +48,7 @@ class timezone (
   Optional[String]         $timezone_update                = undef
 ) {
 
+  notice("timezone file = $timezone_file")
   case $ensure {
     /(present)/: {
       if $autoupgrade == true {
@@ -55,13 +56,13 @@ class timezone (
       } else {
         $package_ensure = 'present'
       }
-      $localtime_ensure = 'file'
+      $localtime_ensure = 'link'
       $timezone_ensure = 'file'
     }
     /(absent)/: {
       # Leave package installed, as it is a system dependency
       $package_ensure = 'present'
-      $localtime_ensure = 'absent'
+      #$localtime_ensure = 'absent'
       $timezone_ensure = 'absent'
     }
     default: {
@@ -69,31 +70,11 @@ class timezone (
     }
   }
 
-  if $package {
-    if $package_ensure == 'present' and $facts['os']['family'] == 'Debian' {
-      $_tz = split($timezone, '/')
-      $area = $_tz[0]
-      $zone = $_tz[1]
-
-      debconf {
-        'tzdata/Areas':
-          package => 'tzdata',
-          item    => 'tzdata/Areas',
-          type    => 'select',
-          value   => $area;
-        "tzdata/Zones/${area}":
-          package => 'tzdata',
-          item    => "tzdata/Zones/${area}",
-          type    => 'select',
-          value   => $zone;
-      }
-      -> Package[$package]
-    }
-
-    package { $package:
-      ensure => $package_ensure,
-      before => File[$localtime_file],
-    }
+  file { $localtime_file:
+    ensure => $localtime_ensure,
+    source => "file://${zoneinfo_dir}/${timezone}",
+    links  => follow,
+    notify => $notify_services,
   }
 
   if $timezone_file {
@@ -107,6 +88,7 @@ class timezone (
         /(Suse|Archlinux)/ => "${timezone_update} ${timezone}",
         default            => $timezone_update,
       }
+      notice("timezone file cmd ($e_command)")
       exec { 'update_timezone':
         command     => $e_command,
         path        => '/usr/bin:/usr/sbin:/bin:/sbin',
@@ -116,11 +98,5 @@ class timezone (
     }
   }
 
-  file { $localtime_file:
-    ensure => $localtime_ensure,
-    source => "file://${zoneinfo_dir}/${timezone}",
-    links  => follow,
-    notify => $notify_services,
-  }
 
 }

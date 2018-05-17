@@ -1,0 +1,5 @@
+puppet-module-saz-timezone (4.1.1) unstable; urgency=medium
+
+  * Initial packaging for Plexxi
+
+ -- Matthew Morgan <matt.morgan@plexxi.com>  Thu, 17 May 2018 12:44:53 -0400

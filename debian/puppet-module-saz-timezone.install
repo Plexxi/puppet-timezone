@@ -1,0 +1,8 @@
+manifests usr/share/puppet/modules.available/saz-timezone
+metadata.json usr/share/puppet/modules.available/saz-timezone
+spec usr/share/puppet/modules.available/saz-timezone
+templates usr/share/puppet/modules.available/saz-timezone
+tests usr/share/puppet/modules.available/saz-timezone
+data usr/share/puppet/modules.available/saz-timezone
+hiera.yaml usr/share/puppet/modules.available/saz-timezone
+
